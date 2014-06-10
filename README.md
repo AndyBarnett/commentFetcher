@@ -63,3 +63,9 @@ HELP:
  -r,--ratingBoundary <arg>   Send email alert comprising of all star
                              ratings at this number or below (default is
                              2)
+
+CRON JOB:
+==============
+00 03 * * 1-7 cd ~/commentFetcher && { java -jar comments.jar -f comments.csv -u androidwe7@gmail.com -p we7monday -e -fu -s -eto barryi@blinkbox.com sven@blinkbox.com andrewa@blinkbox.com andrewba@blinkbox.com frankl@blinkbox.com simonl@blinkbox.com chrisn@blinkbox.com louise@blinkbox.com -r 4 > commentFetcherLog.stdout 2> commentFetcherErrors.stderr; }
+30 03 * 1-7 cd ~/commentFetcher && { cp -r comments.csv /mnt/hestia/andrewb/drop/commentFetcher/ 2> copyingErrors.stderr; }
+00 04 * 1-7 cd ~/commentFetcher && { cp -r comments.csv /mnt/hestia/louise/drop 2> copyingErrors.stderr; }
