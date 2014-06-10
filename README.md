@@ -66,7 +66,7 @@ HELP:
 
 CRON JOB:
 ==============
-00 03 * * 1-7 cd ~/commentFetcher && { java -jar comments.jar -f comments.csv -u androidwe7@gmail.com -p we7monday -e -fu -s -eto ((emails)) -r 4 > commentFetcherLog.stdout 2> commentFetcherErrors.stderr; }
+00 03 * * 1-7 cd ~/commentFetcher && { java -jar comments.jar -f comments.csv -u ((android email)) -p ((android password)) -e -fu -s -eto ((emails)) -r 4 > commentFetcherLog.stdout 2> commentFetcherErrors.stderr; }
 
 30 03 * 1-7 cd ~/commentFetcher && { cp -r comments.csv /mnt/hestia/andrewb/drop/commentFetcher/ 2> copyingErrors.stderr; }
 
