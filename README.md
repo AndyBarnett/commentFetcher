@@ -2,7 +2,7 @@ Example run parameters:
 ==============
 -f  Z:\_\googleplay\comments.csv
 
--u ((android login))
+-u ((android email))
 
 -p ((android password))
 
