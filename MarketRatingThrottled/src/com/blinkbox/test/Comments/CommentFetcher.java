@@ -89,7 +89,8 @@ public class CommentFetcher {
 	private static int mTotalToFetch=-1;
 
 	private static final String mEmailFrom = "autotest";
-	private static String mEmailTo = "";
+	private static String[] mEmailToList;
+	private static String mEmailToCmdLine;
 	private static final String mHost = "localhost";
 	private static final String mSubject = "Low Ratings";
 	public static int mAlertRating = 2;
@@ -113,7 +114,7 @@ public class CommentFetcher {
 	}
 	
 	public void updateComments(final String pUserName, final String pPassword, final String pPackageName, final String pFileName,
-			final CSVFormat pFormat, final int pRequestThrottle, final int pTimeout, final String pEmailTo, final int pAlertRating){
+			final CSVFormat pFormat, final int pRequestThrottle, final int pTimeout, final String pEmailTo[], final int pAlertRating){
 		final long timestamp = getLatestTimeStampFromFile(pFileName, pFormat, CommentFetcher.COLUMN_TIMESTAMP);
 		Timestamp stamp = new Timestamp(timestamp);
 		Date date = new Date(stamp.getTime());
@@ -230,7 +231,7 @@ public class CommentFetcher {
 	}
 	
 	public void getCommentsDate(final String pUserName, final String pPassword, final String pPackageName, final long pTimeStamp, final String pFileName,
-			final CSVFormat pFormat, final int pRequestThrottle, final int pTimeout, final String pEmailTo, final int pAlertRating){
+			final CSVFormat pFormat, final int pRequestThrottle, final int pTimeout, final String[] pEmailTo, final int pAlertRating){
 		MarketSession session = new MarketSession();
 			
 		session.login(pUserName, pPassword);
@@ -287,7 +288,7 @@ public class CommentFetcher {
 				}
 			 }
 		} while (matchIndex == -1 && mFetched < mEndRange);
-		sendMail(mBadCommentsList, mEmailFrom, mEmailTo, mHost, mSubject, mAlertRating);
+		sendMail(mBadCommentsList, mEmailFrom, mEmailToList, mHost, mSubject, mAlertRating);
 		if(mSort)
 			sortAndSaveRecords(pFileName, pFormat);
 	}
@@ -304,11 +305,11 @@ public class CommentFetcher {
 	              break;
 	          case UPDATE:
 	        	  System.out.println("Updating comments");
-	        	  commentFetcher.updateComments(mUserName, mPassword, mPackageName, mFileName, mCVSFormat, mThrottleTime, mRecoveryTime, mEmailTo, mAlertRating);
+	        	  commentFetcher.updateComments(mUserName, mPassword, mPackageName, mFileName, mCVSFormat, mThrottleTime, mRecoveryTime, mEmailToList, mAlertRating);
 	              break;
 	          case DATE:
 	        	  System.out.println("Updating comments by date");
-	        	  commentFetcher.getCommentsDate(mUserName, mPassword, mPackageName, mDate, mFileName, mCVSFormat, mThrottleTime, mRecoveryTime, mEmailTo, mAlertRating);
+	        	  commentFetcher.getCommentsDate(mUserName, mPassword, mPackageName, mDate, mFileName, mCVSFormat, mThrottleTime, mRecoveryTime, mEmailToList, mAlertRating);
 	              break;
 	          case RANGE:
 	        	  System.out.println("Updating comments by range");
@@ -584,7 +585,8 @@ public class CommentFetcher {
 		}
 		if (commandLine.hasOption("eto") && commandLine.hasOption("fu")){
 			if(commandLine.getOptionValue("eto") != null){
-				mEmailTo = commandLine.getOptionValue("eto");
+				mEmailToCmdLine = commandLine.getOptionValue("eto");
+				mEmailToList = mEmailToCmdLine.split(","); 
 			}else{
 				formatter.printHelp( "CommentFetcher", options);
 				System.exit(ERROR);
@@ -658,7 +660,7 @@ public class CommentFetcher {
 	
 	//====================================================EMAIL===============================================
 	
-	public void sendMail(final List<Comment> pComments, final String pFrom, String pTo, String pHost, String pSubject, int pAlertRating){
+	public void sendMail(final List<Comment> pComments, final String pFrom, String pTo[], String pHost, String pSubject, int pAlertRating){
 		  if (pComments.size()==0) {
 			  	System.out.println("No new comments with rating "+mAlertRating+" or below");
 			  return;
@@ -690,8 +692,11 @@ public class CommentFetcher {
 
 	            message.setSubject(pSubject);
 	            message.setFrom(new InternetAddress(pFrom));
-	            String []to = new String[]{pTo};
-	            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to[0]));
+	            //String []to = new String[]{pTo};
+	            for (String recipient : pTo){
+	            	 message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+	            }
+	          //  message.addRecipient(Message.RecipientType.TO, new InternetAddress(pTo[0]));
 	            StringBuilder sb = new StringBuilder();
 	            
 	            sb.append("<title>Comments which have a rating less than or equal to "+mAlertRating);
