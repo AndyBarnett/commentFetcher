@@ -7,11 +7,13 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -94,7 +96,12 @@ public class CommentFetcher {
 	private static final String mHost = "localhost";
 	private static final String mSubject = "Low Ratings";
 	public static int mAlertRating = 2;
-	private List<Comment> mBadCommentsList = new ArrayList<Comment>() ;
+	private List<Comment> mBadCommentsList = new ArrayList<Comment>();
+	
+	//public static List<String> wordList = Arrays.asList("word1", "word2", "word3", "word4", "word5");
+	//public static List<String> randomGeneratedComment = new ArrayList<String>();
+	public static String wordList[] = new String[] {"no sound", "downloading", "abroad", "huddle", "music", "not", "play", "i", "doesn\'t", "block bonks", "rubbish", "peng", "wifi", "crash", "and then", "spottify", "update", "u", "why", "not working"};
+	public static String output = "";
 
 	public void getCommentsNumber(final String pUserName, final String pPassword, final String pPackageName, final int pNumberOfCommentToFetch, 
 			final String pFileName, final CSVFormat pFormat, final int pRequestThrottle){
@@ -322,6 +329,7 @@ public class CommentFetcher {
 	          default:
 	              break;
 	      }
+			
 	  	  System.out.println("Finished batch");
 	}
 	
@@ -651,12 +659,35 @@ public class CommentFetcher {
 	public List<Comment> getBadComments(List<Comment> pComents, int pRating){
 		List<Comment> badComments = new ArrayList<Comment>(); 
 		for(Comment comment : pComents){
-			 if (comment.getRating() <= pRating){ //don't ask why I have to +1 here, I don't know
+			 if (comment.getRating() <= pRating){
 				 badComments.add(comment);
 			 }
 		}
 		return badComments; 		
 	}
+	
+	
+	public static String generateRandom(String[] wordList){
+		Random random = new Random();
+
+		for (int i=0; i<(wordList.length/2); i++){
+			int randomInt = random.nextInt(wordList.length);
+			int commaProbability = random.nextInt(5);
+			//randomList.toArray();
+			String randomWord = wordList[randomInt];
+			if (commaProbability==1){
+				output = output.concat(",");
+			}
+			output = output.concat(" "+randomWord);
+			//randomGeneratedComment.add(randomWord);
+		}
+		System.out.print("output = "+output);
+		//return randomGeneratedComment.toString();
+		return output;
+	}
+	
+	
+	
 	
 	//====================================================EMAIL===============================================
 	
@@ -666,6 +697,8 @@ public class CommentFetcher {
 			  return;
 		  }
 		  System.out.println("And now to send an email...");
+		  
+		  generateRandom(wordList);
 		  
 		  Properties props = new Properties();
 	        props.put("mail.smtp.host", "smtp.gmail.com");
@@ -692,11 +725,9 @@ public class CommentFetcher {
 
 	            message.setSubject(pSubject);
 	            message.setFrom(new InternetAddress(pFrom));
-	            //String []to = new String[]{pTo};
 	            for (String recipient : pTo){
 	            	 message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
 	            }
-	          //  message.addRecipient(Message.RecipientType.TO, new InternetAddress(pTo[0]));
 	            StringBuilder sb = new StringBuilder();
 	            
 	            sb.append("<title>Comments which have a rating less than or equal to "+mAlertRating);
@@ -725,6 +756,14 @@ public class CommentFetcher {
 	                sb.append("\n\n");
 	                sb.append("</tr>");
 	               }
+	            
+	            sb.append("</table>");
+	            
+	            sb.append("<table>");
+	            sb.append("<tr>");
+	            sb.append("Randomly Generated comment: "+output);
+	            sb.append("</tr>");
+	            sb.append("</table>");
 	            
 	            message.setContent(sb.toString(),"text/html");
 	            transport.connect();
