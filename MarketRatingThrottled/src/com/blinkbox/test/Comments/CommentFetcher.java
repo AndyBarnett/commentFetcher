@@ -673,16 +673,13 @@ public class CommentFetcher {
 		for (int i=0; i<(wordList.length/2); i++){
 			int randomInt = random.nextInt(wordList.length);
 			int commaProbability = random.nextInt(5);
-			//randomList.toArray();
 			String randomWord = wordList[randomInt];
 			if (commaProbability==1){
 				output = output.concat(",");
 			}
 			output = output.concat(" "+randomWord);
-			//randomGeneratedComment.add(randomWord);
 		}
 		System.out.print("output = "+output);
-		//return randomGeneratedComment.toString();
 		return output;
 	}
 	
@@ -698,7 +695,11 @@ public class CommentFetcher {
 		  }
 		  System.out.println("And now to send an email...");
 		  
+		  try{
 		  generateRandom(wordList);
+		  } catch (Exception exception) {
+	        	exception.printStackTrace();
+		  }
 		  
 		  Properties props = new Properties();
 	        props.put("mail.smtp.host", "smtp.gmail.com");
